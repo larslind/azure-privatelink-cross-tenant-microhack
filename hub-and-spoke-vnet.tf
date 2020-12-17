@@ -61,13 +61,6 @@ resource "azurerm_subnet" "hub-dns" {
   address_prefix       = "10.0.0.0/24"
 }
 
-resource "azurerm_subnet" "spoke-bastion-subnet" {
-  name                 = "AzureBastionSubnet"
-  resource_group_name  = azurerm_resource_group.privatelink-dns-microhack-rg.name
-  virtual_network_name = azurerm_virtual_network.spoke-vnet.name
-  address_prefix       = "10.1.1.0/27"
-}
-
 resource "azurerm_subnet" "spoke-infrastructure" {
   name                 = "InfrastructureSubnet"
   resource_group_name  = azurerm_resource_group.privatelink-dns-microhack-rg.name
@@ -93,20 +86,6 @@ resource "azurerm_public_ip" "hub-bastion-pip" {
   }
 }
 
-resource "azurerm_public_ip" "spoke-bastion-pip" {
-  name                = "spoke-bastion-pip"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.privatelink-dns-microhack-rg.name
-  allocation_method   = "Static"
-  sku                 = "Standard"
-
-  tags = {
-    environment = "spoke"
-    deployment  = "terraform"
-    microhack   = "privatelink-dns"
-  }
-}
-
 #######################################################################
 ## Create Bastion Services
 #######################################################################
@@ -124,24 +103,6 @@ resource "azurerm_bastion_host" "hub-bastion-host" {
 
   tags = {
     environment = "hub"
-    deployment  = "terraform"
-    microhack   = "privatelink-dns"
-  }
-}
-
-resource "azurerm_bastion_host" "spoke-bastion-host" {
-  name                = "spoke-bastion-host"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.privatelink-dns-microhack-rg.name
-
-  ip_configuration {
-    name                 = "spoke-bastion-host"
-    subnet_id            = azurerm_subnet.spoke-bastion-subnet.id
-    public_ip_address_id = azurerm_public_ip.spoke-bastion-pip.id
-  }
-
-  tags = {
-    environment = "spoke"
     deployment  = "terraform"
     microhack   = "privatelink-dns"
   }
