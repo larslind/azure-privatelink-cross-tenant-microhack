@@ -11,5 +11,10 @@ az group create --location $sqllocation --name privatelink-dns-microhack-sql-rg
 
 az sql server create -g privatelink-dns-microhack-sql-rg -u AzureAdmin -l $sqllocation -p $sqlpassword -n $sqlservername -e false --no-wait
 
+id=$(az sql server list --resource-group privatelink-dns-microhack-sql-rg --query '[].[id]' --output tsv)
 
-az network private-link-service create --help
+echo $id
+
+az network private-endpoint-connection list --id $id
+
+az network private-endpoint show --subscription c1bdc466-a277-452b-8656-2d895da5d492 --resource-group privatelink-dns-microhack-sql-rg --name llplsql-privatendpoint

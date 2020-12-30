@@ -1,0 +1,24 @@
+az login
+az login --tenant microsoft.onmicrosoft.com
+az account set -s 7645db42-8220-45fc-a5bf-7c296c1a68bd
+az account show
+
+terraform init
+
+terraform plan
+
+terraform apply
+
+az network private-endpoint --help
+
+az network private-endpoint create --help
+#    --connection-name                [Required] : Name of the private link service connection.
+#    --name -n                        [Required] : Name of the private endpoint.
+#    --private-connection-resource-id [Required] : The resource id of which private enpoint connect to.
+#    --resource-group -g              [Required] : Name of resource group. You can configure the default group using `az configure --defaults group=<name>`.
+#    --subnet                         [Required] : Name or ID of an existing subnet. If name specified, also specify --vnet-name. If you want to use an existing subnet in other resource group or subscription, please provide the ID instead of the name of the subnet.
+
+az network vnet subnet update --resource-group privatelink-dns-microhack-rg --vnet-name spoke-vnet --name InfrastructureSubnet --disable-private-endpoint-network-policies true
+
+az network private-endpoint create  --connection-name llplsql-connection --name llplsql-privatendpoint --private-connection-resource-id $id --resource-group privatelink-dns-microhack-rg --vnet-name spoke-vnet --subnet InfrastructureSubnet --location westeurope --manual-request true --request-message "Would like to get connected, please!" --group-id sqlServer
+
