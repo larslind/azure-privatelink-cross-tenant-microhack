@@ -1,0 +1,15 @@
+az login --help
+az login --tenant larslindstedtoutlook.onmicrosoft.com
+az account show
+
+
+read -p "Enter location: " sqllocation
+read -p "Enter SQL Server name: " sqlservername
+read -p "Enter SQL password: " sqlpassword
+
+az group create --location $sqllocation --name privatelink-dns-microhack-sql-rg
+
+az sql server create -g privatelink-dns-microhack-sql-rg -u AzureAdmin -l $sqllocation -p $sqlpassword -n $sqlservername -e false --no-wait
+
+
+az network private-link-service create --help
