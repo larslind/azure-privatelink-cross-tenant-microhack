@@ -15,6 +15,6 @@ id=$(az sql server list --resource-group privatelink-dns-microhack-sql-rg --quer
 
 echo $id
 
-az network private-endpoint-connection list --id $id
+#az network private-endpoint-connection list --id $id
 
 az network private-endpoint show --subscription c1bdc466-a277-452b-8656-2d895da5d492 --resource-group privatelink-dns-microhack-sql-rg --name llplsql-privatendpoint
