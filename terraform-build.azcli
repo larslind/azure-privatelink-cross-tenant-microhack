@@ -1,49 +1,40 @@
-########## CUSTOMER TENANT ##########
-az login
-az login --tenant microsoft.onmicrosoft.com
-az account set -s 7645db42-8220-45fc-a5bf-7c296c1a68bd
+read -p "Enter location: " azureregion
+read -p "Enter Consumer tenant: " consumertenant
+read -p "Enter Consumer subscription: " consumersub
+read -p "Enter Provider tenant: " providertenant
+read -p "Enter Provider subscription: " providersub
+read -p "Enter SQL Server name: " sqlservername
+read -p "Enter SQL password: " sqlpassword
+
+########## CONSUMER (CUSTOMER) TENANT ##########
+az login --tenant $consumertenant
+az account set -s $consumersub
 az account show
-cd /home/vscode/workspace/azure-privatelink-cross-tenant-microhack
 terraform init
 
 terraform plan
 
 terraform apply
 
-
 ########## SERVICE PROVIDER TENANT ##########
-az login --tenant larslindstedtoutlook.onmicrosoft.com
+az login --tenant $providertenant
+az account set -s $providersub
 az account show
 
+az group create --location $azureregion --name privatelink-dns-microhack-sql-rg
 
-read -p "Enter location: " sqllocation
-read -p "Enter SQL Server name: " sqlservername
-read -p "Enter SQL password: " sqlpassword
-
-az group create --location $sqllocation --name privatelink-dns-microhack-sql-rg
-
-az sql server create -g privatelink-dns-microhack-sql-rg -u AzureAdmin -l $sqllocation -p $sqlpassword -n $sqlservername -e false --no-wait
+az sql server create -g privatelink-dns-microhack-sql-rg -u AzureAdmin -l $azureregion -p $sqlpassword -n $sqlservername -e false --no-wait
 
 id=$(az sql server list --resource-group privatelink-dns-microhack-sql-rg --query '[].[id]' --output tsv)
 
 echo $id
 
 ########## CUSTOMER TENANT ##########
-az login --tenant microsoft.onmicrosoft.com
-az account set -s 7645db42-8220-45fc-a5bf-7c296c1a68bd
+az login --tenant $consumertenant
+az account set -s $consumersub
 az account show
-
-
-az network private-endpoint --help
-
-az network private-endpoint create --help
-#    --connection-name                [Required] : Name of the private link service connection.
-#    --name -n                        [Required] : Name of the private endpoint.
-#    --private-connection-resource-id [Required] : The resource id of which private enpoint connect to.
-#    --resource-group -g              [Required] : Name of resource group. You can configure the default group using `az configure --defaults group=<name>`.
-#    --subnet                         [Required] : Name or ID of an existing subnet. If name specified, also specify --vnet-name. If you want to use an existing subnet in other resource group or subscription, please provide the ID instead of the name of the subnet.
 
 az network vnet subnet update --resource-group privatelink-dns-microhack-rg --vnet-name spoke-vnet --name InfrastructureSubnet --disable-private-endpoint-network-policies true
 
-az network private-endpoint create  --connection-name llplsql-connection --name llplsql-privatendpoint --private-connection-resource-id $id --resource-group privatelink-dns-microhack-rg --vnet-name spoke-vnet --subnet InfrastructureSubnet --location westeurope --manual-request true --request-message "Would like to get connected, please!" --group-id sqlServer
+az network private-endpoint create  --connection-name llplsql-connection --name llplsql-privatendpoint --private-connection-resource-id $id --resource-group privatelink-dns-microhack-rg --vnet-name spoke-vnet --subnet InfrastructureSubnet --location westeurope --manual-request true --request-message "Could we please get access to this SQL Server?" --group-id sqlServer
 
